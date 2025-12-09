@@ -1,3 +1,1 @@
-// This file has been moved to the project root as App.tsx. 
-// Please delete this file to avoid confusion.
-export {};
+// This file is deprecated. See ../App.tsx

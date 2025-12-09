@@ -12,17 +12,17 @@ app.use(cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173']
 }));
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }) as express.RequestHandler);
 
 // 1. Generate Elf Image
 app.post('/api/generate-elf-image', async (req, res) => {
   try {
     const { imageBase64, prompt } = req.body;
     
-    const API_KEY = process.env.GEMINI_API_KEY;
+    const API_KEY = process.env.API_KEY;
 
     if (!API_KEY) {
-      res.status(500).json({ success: false, error: 'Server misconfigured: GEMINI_API_KEY missing' });
+      res.status(500).json({ success: false, error: 'Server misconfigured: API_KEY missing' });
       return;
     }
 

@@ -6,6 +6,7 @@ import { GoogleGenAI } from "@google/genai";
  */
 export const generateElfDescription = async (name: string, score: number, level: string): Promise<string> => {
   try {
+    // Compliant with guidelines: Use process.env.API_KEY directly.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const prompt = `

@@ -74,10 +74,9 @@ export async function issueObfBadge(
     const issueBody = {
       recipient: [email],
       email_subject: "Sinulle on myönnetty Joulun Osaaja -merkki!",
-      email_body: `Hei ${firstName},\n\nOnneksi olkoon! Olet suorittanut tonttutestin ja sinulle on myönnetty Joulun Osaaja -osaamismerkki.`,
-      email_footer: "Terveisin, Joulupukin Paja",
-      email_link_text: "Ota merkkisi vastaan",
-      recipient_name: firstName
+      email_body: `Hei ${firstName},\n\nOnneksi olkoon! Olet suorittanut tonttutestin ja sinulle on myönnetty Joulun Osaaja -osaamismerkki.\n\nHyvää joulua!`,
+      email_footer: "Terveisin, Eduro",
+      email_link_text: "Ota merkkisi vastaan"
     };
 
     const issueRes = await fetch(issueUrl, {
