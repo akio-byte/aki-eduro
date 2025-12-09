@@ -1,0 +1,7 @@
+{
+  "name": "Joulun Osaaja -kioski",
+  "description": "A festive Christmas kiosk app for Eduro party that generates elf certificates using Gemini AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
