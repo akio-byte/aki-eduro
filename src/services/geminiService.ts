@@ -2,12 +2,10 @@ import { GoogleGenAI } from "@google/genai";
 
 /**
  * Generates a humorous elf description based on name and score.
- * Uses client-side Gemini call if VITE_GEMINI_API_KEY is available (in Vite env).
- * Otherwise returns a static fallback text to ensure app stability without keys.
+ * Uses client-side Gemini call.
  */
 export const generateElfDescription = async (name: string, score: number, level: string): Promise<string> => {
   try {
-    // Compliant with guidelines: Use process.env.API_KEY directly.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const prompt = `
@@ -20,7 +18,7 @@ export const generateElfDescription = async (name: string, score: number, level:
         `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash', // Use faster model for text
+        model: 'gemini-2.5-flash',
         contents: prompt,
     });
     return response.text || "Tonttutaidot ovat mysteeri, mutta joulumieli on vahva!";

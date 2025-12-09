@@ -8,11 +8,11 @@ export default async function handler(request, response) {
   try {
     const { imageBase64, prompt } = request.body;
     
-    // Updated to use process.env.API_KEY per guidelines
-    const apiKey = process.env.API_KEY;
+    // Use GEMINI_API_KEY for backend operations
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return response.status(500).json({ success: false, error: "Server misconfigured: API_KEY missing" });
+      return response.status(500).json({ success: false, error: "Server misconfigured: GEMINI_API_KEY missing" });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -25,7 +25,7 @@ export default async function handler(request, response) {
           {
             inlineData: {
               data: imageBase64,
-              mimeType: 'image/png', // Assumption based on canvas export
+              mimeType: 'image/png',
             },
           },
           { text: prompt },

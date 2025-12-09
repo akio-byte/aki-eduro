@@ -1,4 +1,3 @@
-// server/obfBadgeHelper.ts
 import "dotenv/config";
 
 export interface IssueBadgePayload {
@@ -7,8 +6,8 @@ export interface IssueBadgePayload {
 }
 
 /**
- * Yhteinen helperi OBF-osaamismerkin myöntämiseen.
- * Käytetään sekä local Express-serverissä että Vercel-funktiossa.
+ * Common helper for issuing OBF badges.
+ * Used by both local Express server and Vercel Functions.
  */
 export async function issueObfBadge(
   payload: IssueBadgePayload
@@ -19,8 +18,7 @@ export async function issueObfBadge(
   const OBF_CLIENT_SECRET = process.env.OBF_CLIENT_SECRET;
   const OBF_BADGE_ID = process.env.OBF_BADGE_ID;
   const OBF_API_BASE = process.env.OBF_API_BASE || "https://openbadgefactory.com";
-  const OBF_BADGE_NAME = process.env.OBF_BADGE_NAME || "Joulun osaaja";
-
+  
   if (!email || !firstName) {
     return { success: false, error: "Missing email or firstName" };
   }
@@ -38,7 +36,7 @@ export async function issueObfBadge(
   }
 
   try {
-    // 1) Hae access token OBF:lta (client credentials -flow)
+    // 1) Get Access Token (Client Credentials)
     const tokenUrl = `${OBF_API_BASE}/oauth/token`;
     const tokenBody = new URLSearchParams();
     tokenBody.append("grant_type", "client_credentials");
@@ -69,14 +67,17 @@ export async function issueObfBadge(
       };
     }
 
-    // 2) Myönnä badge
-    // HUOM: tarkka endpoint voi vaihdella OBF-konfiguraation mukaan – tarvittaessa muokkaa tätä
-    const issueUrl = `${OBF_API_BASE}/v1/issuer/issuances`;
+    // 2) Issue Badge (API v2)
+    // POST /v2/badge/:badgeId/assertion
+    const issueUrl = `${OBF_API_BASE}/v2/badge/${OBF_BADGE_ID}/assertion`;
+    
     const issueBody = {
-      email,
-      firstName,
-      badgeId: OBF_BADGE_ID,
-      badgeName: OBF_BADGE_NAME,
+      recipient: [email],
+      email_subject: "Sinulle on myönnetty Joulun Osaaja -merkki!",
+      email_body: `Hei ${firstName},\n\nOnneksi olkoon! Olet suorittanut tonttutestin ja sinulle on myönnetty Joulun Osaaja -osaamismerkki.`,
+      email_footer: "Terveisin, Joulupukin Paja",
+      email_link_text: "Ota merkkisi vastaan",
+      recipient_name: firstName
     };
 
     const issueRes = await fetch(issueUrl, {

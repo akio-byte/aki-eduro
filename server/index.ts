@@ -7,25 +7,22 @@ import { issueObfBadge } from './obfBadgeHelper.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Salli CORS kehitystä varten (Frontti on yleensä portissa 5173)
+// Allow CORS for development
 app.use(cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173']
 }));
 
 app.use(express.json({ limit: '10mb' }));
 
-// Gemini API Key - Updated to API_KEY per guidelines
-const API_KEY = process.env.API_KEY;
-
-// --- Endpoints matching Vercel Functions ---
-
 // 1. Generate Elf Image
 app.post('/api/generate-elf-image', async (req, res) => {
   try {
     const { imageBase64, prompt } = req.body;
     
+    const API_KEY = process.env.GEMINI_API_KEY;
+
     if (!API_KEY) {
-      res.status(500).json({ success: false, error: 'Server misconfigured: API_KEY missing' });
+      res.status(500).json({ success: false, error: 'Server misconfigured: GEMINI_API_KEY missing' });
       return;
     }
 
@@ -39,7 +36,7 @@ app.post('/api/generate-elf-image', async (req, res) => {
           {
             inlineData: {
               data: imageBase64,
-              mimeType: 'image/png', // Assumption based on canvas export
+              mimeType: 'image/png',
             },
           },
           { text: prompt },
