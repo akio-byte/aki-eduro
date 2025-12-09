@@ -17,6 +17,7 @@ export async function issueObfBadge(
   const OBF_CLIENT_ID = process.env.OBF_CLIENT_ID;
   const OBF_CLIENT_SECRET = process.env.OBF_CLIENT_SECRET;
   const OBF_BADGE_ID = process.env.OBF_BADGE_ID;
+  const OBF_BADGE_NAME = process.env.OBF_BADGE_NAME || "Joulun osaaja";
   const OBF_API_BASE = process.env.OBF_API_BASE || "https://openbadgefactory.com";
   
   if (!email || !firstName) {
@@ -73,8 +74,8 @@ export async function issueObfBadge(
     
     const issueBody = {
       recipient: [email],
-      email_subject: "Sinulle on myönnetty Joulun Osaaja -merkki!",
-      email_body: `Hei ${firstName},\n\nOnneksi olkoon! Olet suorittanut tonttutestin ja sinulle on myönnetty Joulun Osaaja -osaamismerkki.\n\nHyvää joulua!`,
+      email_subject: `Sinulle on myönnetty ${OBF_BADGE_NAME} -merkki!`,
+      email_body: `Hei ${firstName},\n\nOnneksi olkoon! Olet suorittanut tonttutestin ja sinulle on myönnetty ${OBF_BADGE_NAME} -osaamismerkki.\n\nHyvää joulua!`,
       email_footer: "Terveisin, Eduro",
       email_link_text: "Ota merkkisi vastaan"
     };

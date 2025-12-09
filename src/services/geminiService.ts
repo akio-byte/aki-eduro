@@ -1,32 +1,65 @@
 import { GoogleGenAI } from "@google/genai";
 
+const FALLBACK_ELF_TEXT =
+  "Tonttututka rätisee hieman, mutta se johtuu vain valtavasta joulun taikuudesta ympärilläsi!";
+
 /**
  * Generates a humorous elf description based on name and score.
- * Uses client-side Gemini call.
+ *
+ * Prefers client-side Gemini when VITE_GEMINI_API_KEY is present; otherwise
+ * falls back to the backend endpoint to avoid exposing secrets in the browser.
  */
-export const generateElfDescription = async (name: string, score: number, level: string): Promise<string> => {
-  try {
-    // Compliant with guidelines: Use process.env.API_KEY directly.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
-    const prompt = `
-          Olet hauska joulupukin apulainen.
-          Kirjoita lyhyt, 2-3 virkkeen humoristinen ja positiivinen arvio henkilön "tonttutaidoista".
-          Henkilön nimi: ${name}
-          Pisteet tonttutestissä: ${score}/12
-          Taso: ${level}
-          Vastaa suomeksi. Ole kannustava ja jouluinen.
-        `;
+export const generateElfDescription = async (
+  name: string,
+  score: number,
+  level: string
+): Promise<string> => {
+  const prompt = `
+    Olet hauska joulupukin apulainen.
+    Kirjoita lyhyt, 2-3 virkkeen humoristinen ja positiivinen arvio henkilön "tonttutaidoista".
+    Henkilön nimi: ${name}
+    Pisteet tonttutestissä: ${score}/12
+    Taso: ${level}
+    Vastaa suomeksi. Ole kannustava ja jouluinen.
+  `;
 
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+  const clientKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+  if (clientKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey: clientKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
         contents: prompt,
-    });
-    return response.text || "Tonttutaidot ovat mysteeri, mutta joulumieli on vahva!";
+      });
+      return response.text || FALLBACK_ELF_TEXT;
+    } catch (error) {
+      console.error("Gemini Text Generation Error (client):", error);
+      // Continue to backend fallback
+    }
+  }
 
+  try {
+    const backendResponse = await fetch("/api/gemini-elf-description", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, score, level, prompt }),
+    });
+
+    if (!backendResponse.ok) {
+      console.error(
+        "Backend Gemini description failed",
+        backendResponse.status,
+        await backendResponse.text()
+      );
+      return FALLBACK_ELF_TEXT;
+    }
+
+    const data = await backendResponse.json();
+    return data.text || FALLBACK_ELF_TEXT;
   } catch (error) {
-    console.error("Gemini Text Generation Error:", error);
-    return "Tonttututka rätisee hieman, mutta se johtuu vain valtavasta joulun taikuudesta ympärilläsi!";
+    console.error("Gemini Text Generation Error (backend):", error);
+    return FALLBACK_ELF_TEXT;
   }
 };
 

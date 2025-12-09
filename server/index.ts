@@ -14,19 +14,25 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }) as express.RequestHandler);
 
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
+
 // 1. Generate Elf Image
 app.post('/api/generate-elf-image', async (req, res) => {
   try {
     const { imageBase64, prompt } = req.body;
-    
-    const API_KEY = process.env.API_KEY;
 
-    if (!API_KEY) {
-      res.status(500).json({ success: false, error: 'Server misconfigured: API_KEY missing' });
+    const ai = getGeminiClient();
+
+    if (!ai) {
+      res.status(500).json({ success: false, error: 'Server misconfigured: GEMINI_API_KEY missing' });
       return;
     }
-
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
 
     // Use Gemini 3 Pro Image Preview model
     const result = await ai.models.generateContent({
@@ -46,21 +52,48 @@ app.post('/api/generate-elf-image', async (req, res) => {
 
     const candidates = result.candidates;
     if (candidates && candidates.length > 0) {
-       for (const part of candidates[0].content.parts) {
-         if (part.inlineData) {
-           res.status(200).json({ 
-             success: true, 
-             imageDataUrl: `data:image/png;base64,${part.inlineData.data}` 
-           });
-           return;
-         }
-       }
+      for (const part of candidates[0].content.parts) {
+        if (part.inlineData) {
+          res.status(200).json({
+            success: true,
+            imageDataUrl: `data:image/png;base64,${part.inlineData.data}`
+          });
+          return;
+        }
+      }
     }
 
     res.status(400).json({ success: false, error: 'No image generated' });
 
   } catch (error: any) {
-    console.error("AI Generation Error:", error);
+    console.error('AI Generation Error (image):', error);
+    res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+  }
+});
+
+// 1b. Generate Elf Description via backend (fallback for frontend)
+app.post('/api/gemini-elf-description', async (req, res) => {
+  try {
+    const { name, score, level, prompt } = req.body;
+
+    const ai = getGeminiClient();
+    if (!ai) {
+      res.status(500).json({ success: false, error: 'Server misconfigured: GEMINI_API_KEY missing' });
+      return;
+    }
+
+    const promptText =
+      prompt ||
+      `Olet hauska joulupukin apulainen. Kirjoita lyhyt, 2-3 virkkeen humoristinen arvio henkilön tonttutaidoista. Nimi: ${name}. Pisteet: ${score}/12. Taso: ${level}. Vastaa suomeksi.`;
+
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: promptText,
+    });
+
+    res.json({ success: true, text: result.text });
+  } catch (error: any) {
+    console.error('AI Generation Error (description):', error);
     res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
   }
 });

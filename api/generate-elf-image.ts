@@ -8,7 +8,6 @@ export default async function handler(request, response) {
   try {
     const { imageBase64, prompt } = request.body;
     
-    // Use GEMINI_API_KEY for backend operations
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -48,7 +47,7 @@ export default async function handler(request, response) {
     return response.status(400).json({ success: false, error: 'No image generated' });
 
   } catch (error: any) {
-    console.error("AI Generation Error", error);
+    console.error("AI Generation Error (Vercel image)", error);
     return response.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
   }
 }
