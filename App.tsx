@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
-import { Step, UserData, GenerationResult } from './types';
-import Step1Form from './components/Step1Form';
-import Step2Camera from './components/Step2Camera';
-import Step3Review from './components/Step3Review';
-import Step4Result from './components/Step4Result';
+import { Step, UserData, GenerationResult } from './src/types';
+import Step1Form from './src/components/Step1Form';
+import Step2Camera from './src/components/Step2Camera';
+import Step3Review from './src/components/Step3Review';
+import Step4Result from './src/components/Step4Result';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<Step>(Step.FORM);

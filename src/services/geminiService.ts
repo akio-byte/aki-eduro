@@ -11,11 +11,9 @@ import { GoogleGenAI } from "@google/genai";
 export const generateElfDescription = async (name: string, score: number, level: string): Promise<string> => {
   try {
     // Attempt to use frontend key if available for low-latency text
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
-    if (apiKey) {
-        const ai = new GoogleGenAI({ apiKey });
-        const prompt = `
+    // Compliant with guidelines: Use process.env.API_KEY directly
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const prompt = `
           Olet hauska joulupukin apulainen.
           Kirjoita lyhyt, 2-3 virkkeen humoristinen ja positiivinen arvio henkilön "tonttutaidoista".
           Henkilön nimi: ${name}
@@ -24,15 +22,11 @@ export const generateElfDescription = async (name: string, score: number, level:
           Vastaa suomeksi. Ole kannustava ja jouluinen.
         `;
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-pro-preview',
-          contents: prompt,
-        });
-        return response.text || "Tonttutaidot ovat mysteeri, mutta joulumieli on vahva!";
-    } 
-    
-    // Fallback or generic text if no frontend key
-    return "Olet todellinen joulun sankari!";
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-pro-preview',
+        contents: prompt,
+    });
+    return response.text || "Tonttutaidot ovat mysteeri, mutta joulumieli on vahva!";
 
   } catch (error) {
     console.error("Gemini Text Generation Error:", error);
