@@ -1,10 +1,5 @@
-// Frontti kutsuu omaa backendiä, ei suoraan OBF:ää.
-// Backendin oletusosoite kehityksessä. Tuotannossa tämä voisi olla suhteellinen polku '/api/...',
-// mutta Vite-dev-serverillä ja erillisellä API-serverillä käytämme täyttä URLia tai proxyä.
-const BACKEND_API_URL = 'http://localhost:3001/api/obf/issue';
-
 /**
- * Issues the "Jouluosaaja" badge to the user's email via the local backend.
+ * Issues the "Jouluosaaja" badge to the user's email via the Vercel backend.
  */
 export const issueBadgeToUser = async (
   email: string, 
@@ -13,8 +8,7 @@ export const issueBadgeToUser = async (
   score: number
 ): Promise<boolean> => {
   try {
-    console.log("Requesting badge issuance from backend...");
-    const response = await fetch(BACKEND_API_URL, {
+    const response = await fetch('/api/send-badge-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -28,8 +22,7 @@ export const issueBadgeToUser = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Backend refused badge issuance:", errorText);
+      console.error("Backend refused badge issuance");
       return false;
     }
 
@@ -45,7 +38,5 @@ export const issueBadgeToUser = async (
  * Returns the URL for the badge image used in the PDF.
  */
 export const getBadgeImageUrl = (): string => {
-  // Palautetaan staattinen kuva tai placeholder PDF:ää varten.
-  // Koska emme hae kuvaa autentikoidusta OBF APIsta frontissa, käytämme julkista ikonia.
   return "https://cdn-icons-png.flaticon.com/512/6192/6192737.png"; 
 };

@@ -1,69 +1,44 @@
 # 🎄 Joulun Osaaja -kioski
 
-Tämä sovellus on "pikkujoulukioski", jota käytetään paikan päällä tapahtumissa. Sovellus sisältää:
-1.  **Tonttumittari-pelin**: Muistipeli, joka mittaa käyttäjän "tonttutaidot".
-2.  **Kameran**: Ottaa kuvan käyttäjästä.
-3.  **Tekoälygeneraattorin**: Google Gemini muuttaa kuvan tontuksi ja kirjoittaa runon.
-4.  **Sertifikaatin**: Luo PDF-todistuksen ja myöntää Open Badge -osaamismerkin sähköpostiin.
+Tämä sovellus on "pikkujoulukioski", joka toimii Vercelissä ja hyödyntää tekoälyä.
 
 ## 🛠 Teknologiat
 
--   **Frontend**: React, Vite, TypeScript, Tailwind CSS
--   **AI**: Google Gemini API (Webcam-kuvan muokkaus + tekstin generointi)
--   **PDF**: `pdf-lib` (selaimessa tapahtuva generointi)
--   **Backend**: Node.js + Express (Open Badge Factory API proxy)
+-   **Frontend**: React, Vite, TypeScript
+-   **Backend**: Vercel Serverless Functions (Node.js)
+-   **AI**: Google Gemini / OpenRouter
+-   **Merkit**: Open Badge Factory
 
-## 🚀 Asennus ja käyttöönotto (Paikallinen kioski)
+## 🚀 Kehitys (Paikallinen)
 
-Koska sovellus käsittelee salaisuuksia (Open Badge Factoryn avaimet), se vaatii kevyen taustapalvelimen toimiakseen oikein.
+1. **Asenna riippuvuudet**: `npm install`
+2. **Ympäristömuuttujat**:
+   Luo `.env` tiedosto (`cp .env.example .env`) ja täytä avaimet.
+   Huom: Paikallisessa kehityksessä backend-funktioita (`/api/*`) varten saatat tarvita `vercel dev` -komennon (`npm i -g vercel`), tai voit mockata vastaukset.
+   
+   Vite-dev-server yksinään ei aja `/api` kansiota serverless-funktioina ilman Vercel CLI:tä.
 
-### 1. Kloonaa repositorio
-```bash
-git clone <REPO_URL>
-cd joulun-osaaja-kioski
-```
+   Suositus: `vercel dev` käynnistää sekä frontin että funktiot.
 
-### 2. Asenna riippuvuudet
-```bash
-npm install
-```
+3. **Käynnistä**:
+   ```bash
+   vercel dev
+   # TAI pelkkä frontti (API-kutsut eivät toimi ilman proxyä)
+   npm run dev
+   ```
 
-### 3. Määritä ympäristömuuttujat
-Kopioi mallitiedosto `.env.local`:
-```bash
-cp .env.example .env.local
-```
+## ☁️ Deploy Verceliin
 
-Muokkaa `.env.local` -tiedostoa ja täytä avaimet:
+1. Lataa projekti GitHubiin.
+2. Luo uusi projekti Vercelissä ja linkitä se GitHub-repoon.
+3. Asetukset:
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. **Environment Variables**:
+   Lisää Vercelin asetuksiin samat avaimet kuin `.env.example`:ssa:
+   - `OPENROUTER_API_KEY` (tai `GEMINI_API_KEY`)
+   - `OBF_CLIENT_ID`, `OBF_CLIENT_SECRET`, `OBF_BADGE_ID`
+   - `VITE_SUPABASE_URL` jne. (jos käytössä)
 
-*   **VITE_GEMINI_API_KEY**: Hae Google AI Studiosta (tarvitaan kuvanmuokkaukseen).
-*   **OBF_CLIENT_ID / SECRET**: Hae Open Badge Factoryn hallintapaneelista (API-avaimet).
-*   **OBF_BADGE_ID**: Sen merkin ID, joka käyttäjälle myönnetään.
-
-### 4. Käynnistä palvelin (Backend)
-Backend hoitaa tietoturvallisen liikenteen Open Badge Factoryn kanssa.
-```bash
-npm run server
-```
-*Tämä käynnistyy oletuksena porttiin 3001 (`http://localhost:3001`).*
-
-### 5. Käynnistä sovellus (Frontend)
-Avaa uusi terminaali-ikkuna ja aja:
-```bash
-npm run dev
-```
-Avaa selain osoitteessa `http://localhost:5173`.
-
-## 🎮 Käyttöohje
-
-1.  **Tiedot**: Asiakas syöttää nimen ja sähköpostin.
-2.  **Peli**: Asiakas pelaa nopean muistipelin.
-3.  **Kuva**: Asiakas ottaa kuvan itsestään.
-4.  **Vahvistus**: Kun asiakas painaa "Luo todistus":
-    *   AI analysoi tuloksen ja muokkaa kuvan.
-    *   PDF luodaan ja on ladattavissa.
-    *   Sovellus pyytää backendia lähettämään osaamismerkin sähköpostiin.
-
-## ⚠️ Huomioitavaa
-*   Tämä sovellus on tarkoitettu ajettavaksi kioskilla (esim. läppäri + webkamera).
-*   **Tietoturva**: Älä koskaan committaa `.env.local` -tiedostoa Git-versiohallintaan. Backend on välttämätön, jotta OBF:n salaisuudet eivät paljastu selaimen lähdekoodissa.
+5. Deploy!
