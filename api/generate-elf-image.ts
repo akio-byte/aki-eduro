@@ -8,11 +8,11 @@ export default async function handler(request, response) {
   try {
     const { imageBase64, prompt } = request.body;
     
-    // Prefer OPENROUTER_API_KEY if available (as requested), otherwise fall back to GEMINI_API_KEY
-    const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY;
+    // Updated to use process.env.API_KEY per guidelines
+    const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-      return response.status(500).json({ error: 'Server configuration error: Missing API Key' });
+      return response.status(500).json({ success: false, error: "Server misconfigured: API_KEY missing" });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -47,8 +47,8 @@ export default async function handler(request, response) {
 
     return response.status(400).json({ success: false, error: 'No image generated' });
 
-  } catch (error) {
-    console.error("AI Generation Error:", error);
+  } catch (error: any) {
+    console.error("AI Generation Error", error);
     return response.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
   }
 }

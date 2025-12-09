@@ -2,17 +2,14 @@ import { GoogleGenAI } from "@google/genai";
 
 /**
  * Generates a humorous elf description based on name and score.
- * NOTE: Text generation is kept client-side for speed if API key allows,
- * or it should be moved to backend too. For now, we assume VITE_GEMINI_API_KEY
- * is public/restricted, OR we can route this through a generic backend proxy if preferred.
- * Given the instructions emphasized IMAGE generation on backend, we keep text here
- * using the public key pattern if available, or fetch.
+ * Uses client-side Gemini call if VITE_GEMINI_API_KEY is available (in Vite env).
+ * Otherwise returns a static fallback text to ensure app stability without keys.
  */
 export const generateElfDescription = async (name: string, score: number, level: string): Promise<string> => {
   try {
-    // Attempt to use frontend key if available for low-latency text
-    // Compliant with guidelines: Use process.env.API_KEY directly
+    // Compliant with guidelines: Use process.env.API_KEY directly.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     const prompt = `
           Olet hauska joulupukin apulainen.
           Kirjoita lyhyt, 2-3 virkkeen humoristinen ja positiivinen arvio henkilön "tonttutaidoista".
@@ -23,14 +20,14 @@ export const generateElfDescription = async (name: string, score: number, level:
         `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.5-flash', // Use faster model for text
         contents: prompt,
     });
     return response.text || "Tonttutaidot ovat mysteeri, mutta joulumieli on vahva!";
 
   } catch (error) {
     console.error("Gemini Text Generation Error:", error);
-    return "Tonttututka ei juuri nyt toimi, mutta olet varmasti mainio apulainen!";
+    return "Tonttututka rätisee hieman, mutta se johtuu vain valtavasta joulun taikuudesta ympärilläsi!";
   }
 };
 

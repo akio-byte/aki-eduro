@@ -1,5 +1,5 @@
 /**
- * Issues the "Jouluosaaja" badge to the user's email via the Vercel backend.
+ * Issues the "Jouluosaaja" badge to the user's email via the Backend API.
  */
 export const issueBadgeToUser = async (
   email: string, 
@@ -22,7 +22,7 @@ export const issueBadgeToUser = async (
     });
 
     if (!response.ok) {
-      console.error("Backend refused badge issuance");
+      console.error("Backend refused badge issuance", response.status, await response.text());
       return false;
     }
 
